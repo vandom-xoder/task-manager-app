@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      margin: 0;
+    }
+
+    .header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 6px 10px;
+      margin: 3px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .add-btn { background: #28a745; }
+    .complete-btn { background: #17a2b8; }
+    .delete-btn { background: #dc3545; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: white;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Task Dashboard</h2>
+</div>
+
+<div class="container">
+
+  <input id="title" placeholder="Task title">
+  <input id="assignedTo" placeholder="Assign to">
+  <button class="add-btn" onclick="addTask()">Add Task</button>
+
+  <ul id="taskList"></ul>
+
+</div>
+
+<script>
+// 🔐 Protect page
+if (!localStorage.getItem("user")) {
+  window.location.href = "index.html";
+}
+
+// ➕ Add task
+async function addTask() {
+  const title = document.getElementById("title").value;
+  const assignedTo = document.getElementById("assignedTo").value;
+
+  await fetch("http://localhost:5000/tasks", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ title, assignedTo })
+  });
+
+  document.getElementById("title").value = "";
+  document.getElementById("assignedTo").value = "";
+
+  loadTasks();
+}
+
+// ✅ Mark as completed
+async function markComplete(id) {
+  await fetch(`http://localhost:5000/tasks/status/${id}`, {
+    method: "PUT",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ status: "Completed" })
+  });
+
+  loadTasks();
+}
+
+// ❌ Delete task
+async function deleteTask(id) {
+  await fetch(`http://localhost:5000/tasks/${id}`, {
+    method: "DELETE"
+  });
+
+  loadTasks();
+}
+
+// 📥 Load tasks
+async function loadTasks() {
+  const res = await fetch("http://localhost:5000/tasks");
+  const tasks = await res.json();
+
+  document.getElementById("taskList").innerHTML =
+    tasks.map(t => `
+      <li class="${t.status === "Completed" ? "completed" : ""}">
+        <b>${t.title}</b> (${t.status})<br>
+        
+        <button class="complete-btn" onclick="markComplete('${t._id}')">
+          Complete
+        </button>
+
+        <button class="delete-btn" onclick="deleteTask('${t._id}')">
+          Delete
+        </button>
+      </li>
+    `).join("");
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
