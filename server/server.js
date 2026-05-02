@@ -5,7 +5,6 @@ const path = require("path");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -18,19 +17,14 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("DB Connected"))
   .catch(err => console.error(err));
 
-// ===== FIXED FRONTEND PATH =====
-const clientPath = path.resolve(__dirname, "../client");
+// ===== FIXED PATH (IMPORTANT) =====
+const clientPath = path.join(__dirname, "..", "client");
 
 app.use(express.static(clientPath));
 
-// ROOT
+// Root route
 app.get("/", (req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
-});
-
-// OPTIONAL: handle unknown routes safely
-app.use((req, res) => {
-  res.status(404).send("Route not found");
 });
 
 const PORT = process.env.PORT || 5000;
