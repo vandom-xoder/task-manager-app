@@ -5,30 +5,30 @@ const path = require("path");
 
 const app = express();
 
-// ✅ Middleware
-app.use(express.json());
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-// ✅ MongoDB (use Atlas for deployment, local for testing)
-mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/taskdb")
-.then(() => console.log("DB Connected"))
-.catch(err => console.log(err));
-
-// ✅ Routes
+// ===== ROUTES =====
 app.use("/auth", require("./routes/auth"));
 app.use("/tasks", require("./routes/tasks"));
 
-// ✅ Serve frontend
+// ===== MONGODB CONNECTION =====
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("DB Connected"))
+  .catch(err => console.log(err));
+
+// ===== SERVE FRONTEND =====
 app.use(express.static(path.join(__dirname, "../client")));
 
-// ✅ Catch-all route (FIXED for Express 5)
-app.use((req, res) => {
+// ===== FIX FOR ROUTING =====
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
 
-// ✅ Port
+// ===== SERVER =====
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log(`Server running on port ${PORT}`);
 });
