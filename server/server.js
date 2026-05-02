@@ -3,11 +3,12 @@ const path = require("path");
 
 const app = express();
 
-// ===== BASIC ROUTES =====
+// ===== BASIC TEST ROUTE =====
 app.get("/", (req, res) => {
   res.send("Server is working 🚀");
 });
 
+// ===== HEALTH CHECK =====
 app.get("/health", (req, res) => {
   res.send("OK");
 });
@@ -20,10 +21,10 @@ app.get("/app", (req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
 });
 
-// ===== IMPORTANT: USE RAILWAY PORT =====
+// ===== 🚨 IMPORTANT: NO HARDCODED PORT =====
 const PORT = process.env.PORT;
 
-// bind to all interfaces
+// ===== START SERVER =====
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Running on port ${PORT}`);
+  console.log("Running on port " + PORT);
 });
