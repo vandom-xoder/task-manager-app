@@ -3,24 +3,27 @@ const path = require("path");
 
 const app = express();
 
-// test route
+// ===== BASIC ROUTES =====
 app.get("/", (req, res) => {
   res.send("Server is working 🚀");
 });
 
-// health check
 app.get("/health", (req, res) => {
   res.send("OK");
 });
 
-// serve frontend (optional)
+// ===== SERVE FRONTEND (optional) =====
 const clientPath = path.join(__dirname, "..", "client");
 app.use(express.static(clientPath));
 
-// 🚨 IMPORTANT: dynamic port
+app.get("/app", (req, res) => {
+  res.sendFile(path.join(clientPath, "index.html"));
+});
+
+// ===== IMPORTANT: USE RAILWAY PORT =====
 const PORT = process.env.PORT;
 
-// 🚨 IMPORTANT: bind to 0.0.0.0
+// bind to all interfaces
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("Running on port " + PORT);
+  console.log(`Running on port ${PORT}`);
 });
