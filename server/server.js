@@ -5,28 +5,34 @@ const path = require("path");
 
 const app = express();
 
-// ===== MIDDLEWARE =====
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ===== ROUTES =====
+// Routes
 app.use("/auth", require("./routes/auth"));
 app.use("/tasks", require("./routes/tasks"));
 
-// ===== DB CONNECTION =====
+// DB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("DB Connected"))
   .catch(err => console.error(err));
 
-// ===== SERVE FRONTEND =====
-app.use(express.static(path.join(__dirname, "../client")));
+// ===== FIXED FRONTEND PATH =====
+const clientPath = path.resolve(__dirname, "../client");
 
-// IMPORTANT: only root route (NO "*")
+app.use(express.static(clientPath));
+
+// ROOT
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/index.html"));
+  res.sendFile(path.join(clientPath, "index.html"));
 });
 
-// ===== PORT =====
+// OPTIONAL: handle unknown routes safely
+app.use((req, res) => {
+  res.status(404).send("Route not found");
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
