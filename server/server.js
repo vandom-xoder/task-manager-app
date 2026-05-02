@@ -5,7 +5,7 @@ const path = require("path");
 
 const app = express();
 
-// Middleware
+// ===== MIDDLEWARE =====
 app.use(cors());
 app.use(express.json());
 
@@ -13,20 +13,20 @@ app.use(express.json());
 app.use("/auth", require("./routes/auth"));
 app.use("/tasks", require("./routes/tasks"));
 
-// ===== MONGODB CONNECTION =====
+// ===== DB CONNECTION =====
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("DB Connected"))
-  .catch(err => console.log(err));
+  .catch(err => console.error(err));
 
 // ===== SERVE FRONTEND =====
 app.use(express.static(path.join(__dirname, "../client")));
 
-// ===== FIX FOR ROUTING =====
-app.get("*", (req, res) => {
+// IMPORTANT: only root route (NO "*")
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
 
-// ===== SERVER =====
+// ===== PORT =====
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
